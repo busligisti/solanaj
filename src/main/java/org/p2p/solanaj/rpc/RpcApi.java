@@ -99,12 +99,25 @@ public class RpcApi {
     }
 
     public ConfirmedTransaction getConfirmedTransaction(String signature) throws RpcException {
-        List<Object> params = new ArrayList<Object>();
+        return getConfirmedTransaction(signature, new HashMap<>());
+    }
+
+    public ConfirmedTransaction getConfirmedTransaction(String signature, Map<String, Object> additionalParams) throws RpcException {
+        List<Object> params = new ArrayList<>();
+
+        Map<String, Object> parameterMap = new HashMap<>();
+
+        if (additionalParams.containsKey("encoding")) {
+            parameterMap.put("encoding", additionalParams.get("encoding"));
+        }
+
+        if (additionalParams.containsKey("commitment")) {
+            Commitment commitment = (Commitment) additionalParams.get("commitment");
+            parameterMap.put("commitment", commitment.getValue());
+        }
 
         params.add(signature);
-        // TODO jsonParsed, base58, base64
-        // the default encoding is JSON
-        // params.add("json");
+        params.add(parameterMap);
 
         return client.call("getConfirmedTransaction", params, ConfirmedTransaction.class);
     }
